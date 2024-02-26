@@ -1,16 +1,18 @@
 --1 ATIVIDADE: -
-  SELECT
-    EXTRACT(YEAR FROM date) AS year,
-    EXTRACT(MONTH FROM date) AS month,
-    SUM(quantity) AS total_products_sold
-FROM
-    sales
-GROUP BY
-    EXTRACT(YEAR FROM date),
-    EXTRACT(MONTH FROM date)
-ORDER BY
-    year,
-    month;
+CREATE FUNCTION TrimDate (@dataToTrim datetime)
+RETURNS varchar(20)
+AS
+BEGIN
+RETURN CONCAT(DATENAME(month, @dataToTrim), '/', CONVERT(varchar(4), YEAR(@dataToTrim)))
+END
+  
+SELECT
+dbo.TrimDate(DataPedido) AS DataDoPedido,
+COUNT(*) AS TotalDeVendas
+FROM Venda
+GROUP BY dbo.TrimDate(DataPedido)
+ORDER BY MIN(DataPedido)
+
 -- 2 ATIVIDADE:  -
 SELECT
 LEFT(c.Nome, CHARINDEX(' ', c.Nome + ' ') - 1) AS PrimeiroNome,
@@ -22,42 +24,67 @@ ORDER BY
 DATEPART(month, c.DataCadastro),
 DATEPART(day, c.DataCadastro);
 -- 3 ATIVIDADE:
+WITH ClienteTotal AS (
 SELECT
-    nome_cliente,
-    total_comprado,
-    ticket_medio_cliente,
-    ticket_medio_empresa,
-    (ticket_medio_cliente / ticket_medio_empresa - 1) * 100 AS comparativo_percentual
+c.Nome,
+COUNT(v.ValorLiquido) AS NumCompras,
+SUM(v.ValorLiquido) AS TotalComprado
 FROM
-    (
-        SELECT
-            c.nome AS nome_cliente,
-            SUM(v.total_compra) AS total_comprado,
-            AVG(v.total_compra) AS ticket_medio_cliente,
-            (SELECT AVG(total_compra) FROM vendas) AS ticket_medio_empresa
-        FROM
-            clientes c
-        INNER JOIN vendas v ON c.id = v.id_cliente
-        GROUP BY
-            c.id
-    ) AS subquery;
--- 4 – ATIVIDADE:
-SELECT
-    marca,
-    SUM(quantidade_vendida) AS quantidade_produtos_vendidos,
-    ROUND((SUM(quantidade_vendida) / total_produtos_vendidos) * 100, 2) AS porcentagem_vendida
-FROM
-    (
-        SELECT
-            p.marca,
-            v.quantidade_vendida,
-            (SELECT SUM(quantidade_vendida) FROM vendas) AS total_produtos_vendidos
-        FROM
-            produtos p
-        INNER JOIN vendas v ON p.id = v.id_produto
-    ) AS subquery
+Cliente c
+JOIN Venda v ON c.ClienteID = v.ClienteID
 GROUP BY
-    marca
+c.Nome
+),
+EmpresaTotal AS (
+SELECT
+SUM(TotalComprado) AS TotalEmpresa,
+SUM(NumCompras) AS TotalComprasEmpresa
+FROM
+ClienteTotal
+)
+SELECT
+ct.Nome AS NomeDoCliente,
+ct.TotalComprado,
+ct.TotalComprado / ct.NumCompras AS TicketMedioCliente,
+(SELECT TotalEmpresa / TotalComprasEmpresa FROM EmpresaTotal) AS TicketMedioEmpresa,
+(ct.TotalComprado / ct.NumCompras) / (SELECT TotalEmpresa / TotalComprasEmpresa FROM EmpresaTotal) * 100 AS Comparativo
+FROM
+ClienteTotal ct
 ORDER BY
-    quantidade_produtos_vendidos DESC;
+NomeDoCliente;
 
+-- 4 – ATIVIDADE:
+WITH TotalVendas AS (
+SELECT
+SUM(vp.QtdeVendida) AS TotalQuantidade
+FROM
+VendaProduto vp
+),
+MarcaVendas AS (
+SELECT
+p.MarcaID,
+SUM(vp.QtdeVendida) AS QuantidadeVendida
+FROM
+Produto p
+JOIN VendaProduto vp ON p.ProdutoID = vp.ProdutoID
+GROUP BY
+p.MarcaID
+),
+TotalMarca AS (
+SELECT
+m.Descricao AS Marca,
+mv.QuantidadeVendida
+FROM
+MarcaVendas mv
+JOIN Marca m ON mv.MarcaID = m.MarcaID
+)
+SELECT
+tm.Marca,
+tm.QuantidadeVendida,
+CAST((tm.QuantidadeVendida * 100.0 / tv.TotalQuantidade) AS DECIMAL(10, 2)) AS PorcentagemVendida
+FROM
+TotalMarca tm
+CROSS JOIN
+TotalVendas tv
+ORDER BY
+tm.QuantidadeVendida DESC;
