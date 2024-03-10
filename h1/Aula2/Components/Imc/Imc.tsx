@@ -36,8 +36,7 @@ const Imc = ({peso, altura}:ImcProps) => {
 
 
 
-//     alert(`IMC: ${imc.toFixed(2)} kg/m² \n${resultado}`)
-//    }
+
   return (
     <View style={styles.container}>      
       <Text style={styles.title}>Seu IMC {imc}</Text> 
@@ -48,38 +47,67 @@ const Imc = ({peso, altura}:ImcProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    // backgroundColor: '#666699',
-    // alignItems: 'center',
-    // justifyContent: 'center',
+    flex: 1,
+    backgroundColor: '#fffff0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
   },
 
   title: {
-    fontWeight: '800',
-    fontSize: 20,
-    marginBottom: 20
+    fontSize: 36,
+    marginBottom: 20,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    color: '#FF5733',
+    fontFamily: 'Verdana',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    textShadowColor: '#000000', 
+    textShadowOffset: { width: 1, height: 1 }, 
+    textShadowRadius: 2, 
+  
   },
 
   input: {
-    // padding: 5,
-    // width: '80%',
-    // margin: 5,
-    // borderRadius: 10,
-    // borderWidth: 1,
-    // borderColor: 'gray',
-    // backgroundColor: '#fff'
+    padding: 15,
+    width: '90%',
+    marginBottom: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FF00FF',
+    backgroundColor: '#FFFFFF',
+    fontSize: 16,
+    color: '#333333',
+    textAlign: 'center',
+    fontFamily: 'Arial',
   },
 
   button: {
-    // padding: 5,
-    // width: '80%',
-    // margin: 5,
-    // borderRadius: 10,
-    // borderWidth: 1,
-    // alignItems: 'center',
-    // color: '#fff',
-    // backgroundColor: '#ff3300',
-  }
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    backgroundColor: '#FF00FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'Arial',
+    textTransform: 'uppercase',
+    fontWeight: 'bold',
+  },
+  
 });
 
 export default Imc;
