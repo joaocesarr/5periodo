@@ -1,6 +1,3 @@
-# Database buinding
+# Database sendo criado
 
-![Screenshot](AmgChocolate.drawio.png)
-
-
-visualize o codigo em [SQL](AmgChocolate.sql)
+>> visualize o codigo em [SQL](AmgChocolate.sql) <<
